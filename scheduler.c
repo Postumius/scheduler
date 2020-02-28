@@ -215,8 +215,10 @@ int task_readchar() {
   // To check for input, call getch(). If it returns ERR, no input was available.
   // Otherwise, getch() will returns the character code that was read.
   while (true) {
-    char input = getch();
-    if (input == ERR) schedule_next();
+    int input = getch();
+    if (input == ERR) {
+      schedule_next();
+    }
     else return input;
   }
 }

@@ -339,7 +339,7 @@ int main(void) {
   // Clean up window
   delwin(mainwin);
   endwin();
-  printf("hello!\n");
+  //printf("hello!\n");
 
   return 0;
 }
