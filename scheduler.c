@@ -51,24 +51,14 @@ int is_ready(task_info_t task) {
     task.wake_time <= time_ms();
 }
 
+//loops through the tasks and schedules the next available one
 void schedule_next() {
   int i = current_task + 1;
   while(true) {
-    /*
-  for(int i = current_task + 1;
-      i < num_tasks;
-      i++) {   */
-    if (is_ready(tasks[i])) {
-      /*
-      if (current_task == -1) {
-        current_task = i;
-        swapcontext(&main_ctx,
-                    &tasks[current_task].context);
-      */
+    if (is_ready(tasks[i])) {      
       int old_task = current_task;
       current_task = i;
       tasks[current_task].waiting_for = -1;
-      //printf("swapping to %d\n", current_task);
       swapcontext(&tasks[old_task].context,
                   &tasks[current_task].context);
       break;
@@ -85,7 +75,6 @@ void schedule_next() {
  * functiosn in this file.
  */
 void scheduler_init() {
-  // TODO: Initialize the state of the scheduler
   current_task = 0;
   num_tasks = 1;
   num_alive = 1;
@@ -93,17 +82,9 @@ void scheduler_init() {
   tasks[0].is_alive = 1;
 
   tasks[0].waiting_for = -1;  
-  /*
-  getcontext(&tasks[0].exit_context);  
-  tasks[0].exit_context.uc_stack.ss_sp = malloc(STACK_SIZE);
-  tasks[0].exit_context.uc_stack.ss_size = STACK_SIZE;  
-  makecontext(&tasks[0].exit_context, task_exit, 0);
-  */
+  
   getcontext(&tasks[0].context);
-  /*
-  tasks[0].context.uc_stack.ss_sp = malloc(STACK_SIZE);
-  tasks[0].context.uc_stack.ss_size = STACK_SIZE;  
-  tasks[0].context.uc_link = &tasks[0].exit_context;*/
+ 
 }
 
 
@@ -113,8 +94,6 @@ void scheduler_init() {
  * because of how the contexts are set up in the task_create function.
  */
 void task_exit() {
-  // TODO: Handle the end of a task's execution here
-  //printf("exiting %d\n", current_task);
   num_alive--;
   tasks[current_task].is_alive = 0;
   
@@ -123,11 +102,7 @@ void task_exit() {
   
   free(tasks[current_task].exit_context.uc_stack.ss_sp);
   tasks[current_task].exit_context.uc_stack.ss_size = 0;
-  /*
-  if (num_tasks <= 0) {
-    swapcontext(&tasks[current_task].context, &main_ctx);
-  }
-  */
+  
   schedule_next();
 }
 
@@ -197,8 +172,6 @@ void task_wait(task_t handle) {
  * \param ms  The number of milliseconds the task should sleep.
  */
 void task_sleep(size_t ms) {
-  // TODO: Block this task until the requested time has elapsed.
-  // Hint: Record the time the task should wake up instead of the time left for it to sleep. The bookkeeping is easier this way.
   tasks[current_task].wake_time = time_ms() + ms;
   schedule_next();
 }
@@ -211,9 +184,6 @@ void task_sleep(size_t ms) {
  * \returns The read character code
  */
 int task_readchar() {
-  // TODO: Block this task until there is input available.
-  // To check for input, call getch(). If it returns ERR, no input was available.
-  // Otherwise, getch() will returns the character code that was read.
   while (true) {
     int input = getch();
     if (input == ERR) {
